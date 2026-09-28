@@ -1,0 +1,76 @@
+backend:
+//npm init -y; npm install express dotenv @supabase/supabase-js; npm install -D typescript @types/node @types/express @tsconfig/node24 tsx 
+//npm install bcrypt
+//npm install -D @types/bcrypt
+//npm install cors
+//npm install -D @types/cors
+
+
+
+
+
+-- SELECT relrowsecurity
+-- FROM pg_class
+-- WHERE relname = 'users'; --> Utilizado para ativar o RLS (segurança)
+
+SELECT
+    policyname,
+    cmd,
+    roles
+FROM pg_policies
+WHERE tablename = 'users';
+
+CREATE POLICY "Permitir cadastro de clientes" // Quem estiver sujeito ao RLS pode inserir uma linha em users, desde que ela tenha role = 'cliente'.
+ON public.users
+FOR INSERT
+WITH CHECK (
+    role = 'cliente'
+);
+
+
+CREATE POLICY "Usuário pode consultar seu próprio perfil"
+ON public.users
+FOR SELECT
+USING (
+    id = auth.uid()
+);
+
+SELECT
+    relname,
+    relrowsecurity,
+    relforcerowsecurity
+FROM pg_class
+WHERE relname = 'customer';
+
+SELECT * // Serve para ver as policy da tabela
+FROM pg_policies 
+WHERE tablename = 'customer';
+
+CREATE POLICY "Permitir cadastro de clientes" // Só permite o cadastro se role = 'cliente'
+ON public.customer
+FOR INSERT
+WITH CHECK (
+    role = 'cliente'
+);
+
+CREATE POLICY "Cliente pode consultar próprio perfil" //liberar o select pros clientes kkkkkkj
+ON public.customer
+FOR SELECT
+USING (
+    id = auth.uid()
+);
+
+ALTER TABLE public.users
+ADD CONSTRAINT users_role_check
+CHECK (
+    role IN (
+        'admin',
+        'dono',
+        'atendente',
+        'tecnico',
+        'funcionario'
+    )
+);
+__________FRONTEND__________
+npm install recharts lucide-react
+npm run build

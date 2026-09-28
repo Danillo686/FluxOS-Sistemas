@@ -1,0 +1,17 @@
+{
+  "extends": "@tsconfig/node24/tsconfig.json", // --> Extende o tsconfig do node 24
+  "compilerOptions": {
+    "rootDir": "src", // --> Tudo que estiver dentro da src em TS vai ser compilado para a pasta dist
+    "outDir" : "dist", // Será compilado para a pasta dist em JS
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*"]
+}
+
+// inciar: npm init -y    
+//npm install express
+//npm i --save-dev @types/express
+//npm install -D typescript @types/node
+// criar um tsconfig.json e configurar o rootDir e outDir
