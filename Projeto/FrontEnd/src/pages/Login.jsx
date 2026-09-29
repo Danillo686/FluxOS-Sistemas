@@ -44,6 +44,9 @@ export default function Login() {
           case 'technician':
             navigate('/technician');
             break;
+          case 'customer':
+            navigate('/customer')
+            break;
           default:
             alert('Tipo de usuário não reconhecido.');
             break;

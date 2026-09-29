@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import Tabnavigator from "../navigation/TabNavigator";
 
-function Owner() {
+function Customer() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:3001/owner");
+        const response = await fetch("http://localhost:3001/customer");
         const jsonData = await response.json();
         setData(jsonData);
       } catch (error) {
@@ -20,7 +19,6 @@ function Owner() {
 
   return (
     <div>
-      <Tabnavigator />
       <ul>
         {data.map((item) => (
           <li key={item.id}>{item.name}</li>
@@ -30,4 +28,4 @@ function Owner() {
   );
 }
 
-export default Owner;
+export default Customer;
