@@ -1,0 +1,39 @@
+Como pegar Authorization:
+Logar em uma conta, pegar seu token
+Ir no postman
+Headers -> Key: Authorization, Value: O token copiado
+
+Quando fizer isso, você vai ter logado oficialmente, e então poderá "agir"
+
+Criação de cliente: (Requer Authorization)
+{
+    "name": "Marcos",
+    "cpf": "12345678900",
+    "zip_code": "88130000",
+    "phone": "48999999999",
+    "photo": "",
+    "email": "marcos@oficina.com",
+    "password": "12345678"
+}
+
+Criação de funcionarios: (Requer Authorization)
+{
+    "name": "Julia",
+    "email": "julia@oficina.com",
+    "password": "12345678",
+    "role": "attendant"
+}
+
+Login:
+{
+     "email" : "videfrigo@gmail.com",
+     "password" : "123456"
+}
+
+Para cadastrar um veículo pelo UUID do cliente:
+{
+    "customer_id": "UUID_REAL_DO_CLIENTE",
+    "plate": "ABC1234",
+    "model": "Civic",
+    "brand": "Honda"
+}

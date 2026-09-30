@@ -19,7 +19,8 @@ const actionPermissions = {
         "create_employee"
     ],
     attendant: [
-        "create_customer"
+        "create_customer",
+        "create_vehicle"
     ],
     employee: [
         "create_employee"

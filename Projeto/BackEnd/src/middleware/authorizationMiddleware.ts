@@ -19,6 +19,7 @@ export function CanCreateRole (
 export type Permissions = 
     | 'create_employee'
     | 'create_customer'
+    | 'create_vehicle'
 
 const actionPermissions: Record<EmployeeRole, Permissions[]> = {
         admin: [
@@ -34,7 +35,8 @@ const actionPermissions: Record<EmployeeRole, Permissions[]> = {
     ],
 
     attendant: [
-        "create_customer"
+        "create_customer",
+        "create_vehicle"
     ],
 
     employee: [
