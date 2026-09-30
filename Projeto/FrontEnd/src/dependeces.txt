@@ -71,6 +71,20 @@ CHECK (
         'funcionario'
     )
 );
+
+CREATE POLICY "Permitir que funcionários criem clientes" 
+ON customer 
+FOR INSERT 
+TO authenticated 
+WITH CHECK (
+  -- Verifica se o ID de quem está logado (auth.uid()) possui a role correta na tabela users
+  EXISTS (
+    SELECT 1 
+    FROM users 
+    WHERE users.id_users = auth.uid() 
+      AND users.role IN ('attendant', 'owner', 'admin')
+  )
+);
 __________FRONTEND__________
 npm install recharts lucide-react
 npm run build

@@ -19,6 +19,9 @@ function Customer() {
 
   return (
     <div>
+      <h1>
+        Funcionando perfeitamente :)  Rota: /Customer
+      </h1>
       <ul>
         {data.map((item) => (
           <li key={item.id}>{item.name}</li>

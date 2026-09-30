@@ -10,8 +10,11 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      // Permite alterar a URL da API com VITE_API_URL em outros ambientes.
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      
+      console.log('Tentando logar em:', `${apiUrl}/login`); // <-- TESTE 1: Ver URL
+      console.log('Dados enviados:', { email, password });
+
       const response = await fetch(`${apiUrl}/login`, {
         method: 'POST',
         headers: {
@@ -21,19 +24,18 @@ export default function Login() {
       });
 
       const data = await response.json();
+      
+      console.log('RESPOSTA COMPLETA DO BACKEND:', data); // <-- TESTE 2: Ver o formato dos dados
 
       if (response.ok) {
-        // O backend devolve a credencial dentro de session.access_token.
         if (data.session?.access_token) {
           localStorage.setItem('token', data.session.access_token);
         }
 
-        // Armazena os dados do usuário para fácil acesso depois
         if (data.user) {
           localStorage.setItem('user', JSON.stringify(data.user));
         }
 
-        // Redirecionamento por tipo de perfil
         switch (data.user?.role) {
           case 'owner':
             navigate('/owner');
@@ -45,9 +47,10 @@ export default function Login() {
             navigate('/technician');
             break;
           case 'customer':
-            navigate('/customer')
+            navigate('/customer'); // Corrigido ponto e vírgula aqui
             break;
           default:
+            console.log('Caiu no default! Role atual:', data.user?.role);
             alert('Tipo de usuário não reconhecido.');
             break;
         }
@@ -55,7 +58,7 @@ export default function Login() {
         alert(data.message || data.error || 'Erro ao realizar o login.');
       }
     } catch (error) {
-      console.error('Erro na requisição:', error);
+      console.error('Erro na requisição (CORS ou Servidor desligado):', error);
       alert('Não foi possível conectar ao servidor. Verifique se o backend está rodando.');
     }
   };
