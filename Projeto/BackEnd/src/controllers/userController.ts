@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express"
-import { supabase } from "../supabase.js"
+import { supabaseAdmin } from "../supabase.js"
 
 export const createUser = async (
     req: Request,
@@ -12,7 +12,7 @@ export const createUser = async (
         return res.status(400).json({message: 'Nome, email, senha e role são obrigatórios'})
     }
 
-    const {data, error} = await supabase.auth.admin.createUser({
+    const {data, error} = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
         email_confirm: true
@@ -24,7 +24,7 @@ export const createUser = async (
 
     const userId = data.user.id
 
-    const {data: employee, error: employeeError} = await supabase
+    const {data: employee, error: employeeError} = await supabaseAdmin
     .from('users')
     .insert({
         id_users: userId,

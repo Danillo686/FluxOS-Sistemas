@@ -1,10 +1,10 @@
-import { supabase } from "../supabase.js";
+import { supabaseAdmin } from "../supabase.js";
 export const createUser = async (req, res, next) => {
     const { name, email, password, role } = req.body;
     if (!name || !email || !password || !role) {
         return res.status(400).json({ message: 'Nome, email, senha e role são obrigatórios' });
     }
-    const { data, error } = await supabase.auth.admin.createUser({
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
         email_confirm: true
@@ -13,7 +13,7 @@ export const createUser = async (req, res, next) => {
         return res.status(400).json({ message: 'Error ao criar conta', error: error.message });
     }
     const userId = data.user.id;
-    const { data: employee, error: employeeError } = await supabase
+    const { data: employee, error: employeeError } = await supabaseAdmin
         .from('users')
         .insert({
         id_users: userId,

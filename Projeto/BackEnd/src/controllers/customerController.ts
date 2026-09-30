@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { supabase } from "../supabase.js"
+import { supabase, supabaseAdmin } from "../supabase.js"
 
 export const createCustomer = async (
     req: Request,
@@ -17,10 +17,10 @@ export const createCustomer = async (
     } = req.body
 
     if (!name || !cpf || !zip_code || !phone || !email || !password) {
-        message: "Nome, CPF, CEP, telefone, email e senha são obrigatórios"
+        return res.status(400).json({message: "Nome, CPF, CEP, telefone, email e senha são obrigatórios"})
     }
 
-    const { data, error } = await supabase.auth.admin.createUser({
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
         email_confirm: true
@@ -32,7 +32,7 @@ export const createCustomer = async (
 
     const userId = data.user.id
 
-    const {data: customer, error: customerError} = await supabase
+    const {data: customer, error: customerError} = await supabaseAdmin
     .from('customer')
     .insert({
         id_customer: userId,

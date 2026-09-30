@@ -1,24 +1,51 @@
 import { supabase } from "../supabase.js";
 export const createVehicle = async (req, res) => {
-    const { customer_id, plate, model, brand } = req.body;
-    if (!customer_id || !plate || !model || !brand) {
-        return res.status(400).json({ message: 'Cliente, placa, modelo e marca são obrigatórios' });
+    const { customer_id, // Pode vir o ID
+    name, // Ou o nome
+    phone, // Ou o telefone
+    plate, model, brand } = req.body;
+    // Validação básica: precisa de pelo menos uma forma de identificar o cliente + os dados do carro
+    if ((!customer_id && !name && !phone) || !plate || !model || !brand) {
+        return res.status(400).json({
+            message: 'É necessário informar o Cliente (ID, Nome ou Telefone), além de placa, modelo e marca do veículo.'
+        });
     }
-    const { data: customer, error: customerError } = await supabase
-        .from('customer')
-        .select('id_customer')
-        .eq('id_customer', customer_id)
-        .maybeSingle();
+    // 1. MONTA A BUSCA DINÂMICA DO CLIENTE
+    let query = supabase.from('customer').select('id_customer');
+    if (customer_id) {
+        // Se mandou o ID, busca direto de forma precisa
+        query = query.eq('id_customer', customer_id);
+    }
+    else {
+        // Se não mandou ID, cria uma busca condicional (OR) usando Nome ou Telefone
+        const orConditions = [];
+        if (name)
+            orConditions.push(`name.ilike.%${name}%`); // ilike ignora maiúsculas/minúsculas
+        if (phone)
+            orConditions.push(`phone.eq.${phone}`);
+        query = query.or(orConditions.join(','));
+    }
+    // Executa a busca do cliente no banco
+    const { data: customers, error: customerError } = await query;
     if (customerError) {
         return res.status(500).json({ message: 'Erro ao verificar cliente', error: customerError.message });
     }
-    if (!customer) {
-        return res.status(404).json({ message: 'Cliente não encontrado' });
+    // 2. VALIDAÇÕES DOS RESULTADOS ENCONTRADOS
+    if (!customers || customers.length === 0) {
+        return res.status(404).json({ message: 'Cliente não encontrado com os dados informados.' });
     }
+    if (customers.length > 1) {
+        return res.status(400).json({
+            message: 'Mais de um cliente foi encontrado com esse nome/telefone. Por favor, utilize o ID do cliente para maior precisão.'
+        });
+    }
+    // Acessa a posição 0 do array de resultados para pegar o ID único do cliente
+    const finalCustomerId = customers[0].id_customer;
+    // 3. CADASTRA O VEÍCULO COM O ID CORRETO VINCULADO
     const { data: vehicle, error: vehicleError } = await supabase
         .from('vehicles')
         .insert({
-        customer_id,
+        customer_id: finalCustomerId,
         plate,
         model,
         brand
@@ -26,7 +53,7 @@ export const createVehicle = async (req, res) => {
         .select()
         .single();
     if (vehicleError) {
-        return res.status(500).json({ message: 'Error ao cadastrar', error: vehicleError.message });
+        return res.status(500).json({ message: 'Erro ao cadastrar veículo', error: vehicleError.message });
     }
     return res.status(201).json({ message: 'Veículo cadastrado com sucesso!', vehicle });
 };

@@ -37,3 +37,73 @@ Para cadastrar um veículo pelo UUID do cliente:
     "model": "Civic",
     "brand": "Honda"
 }
+
+Pelo nome (post vehicles): 
+{
+  "name": "João Silva",
+  "plate": "XYZ9H87",
+  "model": "Onix Turbo",
+  "brand": "Chevrolet"
+}
+
+Pelo telefone (post vehicles):
+{
+  "phone": "11999998888",
+  "plate": "KGI4E21",
+  "model": "Corolla XEI",
+  "brand": "Toyota"
+}
+
+
+CREATE POLICY "Permitir leitura para usuários autenticado" 
+ON users FOR SELECT 
+TO authenticated 
+USING (true);
+USAR CORS
+
+
+-- 2. Cria uma nova política de LEITURA segura: 
+-- Qualquer usuário autenticado (incluindo o próprio atendente no login) pode ler dados de users
+CREATE POLICY "Permitir leitura para autenticados" 
+ON users FOR SELECT 
+TO authenticated 
+USING (true);
+
+-- 3. Cria uma política de MODIFICAÇÃO (Insert, Update, Delete) segura:
+-- Em vez de fazer um SELECT na tabela users, você pode usar os metadados do Auth do Supabase,
+-- ou, dado que seu backend já usa o supabaseAdmin (Service Role) para criar usuários, 
+-- nós podemos bloquear qualquer alteração direta via chave pública (Anon) por segurança.
+CREATE POLICY "Bloquear alterações diretas via chave publica" 
+ON users FOR ALL 
+TO authenticated 
+USING (false)
+WITH CHECK (false);
+
+
+
+
+-- 2. Cria a política de INSERT baseada na role do funcionário logado
+CREATE POLICY "Funcionarios cadastram veiculos" 
+ON vehicles 
+FOR INSERT 
+TO authenticated 
+WITH CHECK (
+  EXISTS (
+    SELECT 1 
+    FROM users 
+    WHERE users.id_users = auth.uid() 
+      AND users.role IN ('admin', 'owner', 'manager', 'attendant')
+  )
+);
+
+-- 3. Cria a política de SELECT (Leitura) segura: 
+-- Funcionários veem todos os veículos, Clientes só veem o seu próprio veículo
+CREATE POLICY "Leitura de veiculos por nivel de acesso" 
+ON vehicles 
+FOR SELECT 
+TO authenticated 
+USING (
+  EXISTS (SELECT 1 FROM users WHERE users.id_users = auth.uid()) -- É funcionário? Vê tudo.
+  OR 
+  customer_id = auth.uid() -- É cliente? Vê apenas se o carro for dele.
+);

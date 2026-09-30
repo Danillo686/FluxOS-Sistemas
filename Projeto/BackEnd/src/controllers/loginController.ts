@@ -1,53 +1,80 @@
-import { Request, Response } from "express"
-import { supabase } from "../supabase.js"
+    import { Request, Response } from "express"
+    import { supabase, supabaseAdmin } from "../supabase.js"
 
-export const login = async (
-    req: Request,
-    res: Response
-): Promise<any> => {
-    const {email, password} = req.body
+    export const login = async (
+        req: Request,
+        res: Response
+    ): Promise<any> => {
+        const {email, password} = req.body
 
-    if (!email || !password) {
-        return res.status(400).json({message:'Email e senha são obrigatórios'})
-    }
+        if (!email || !password) {
+            return res.status(400).json({message:'Email e senha são obrigatórios'})
+        }
 
-    const {data, error} = await supabase.auth.signInWithPassword({
-        email, password
-    })
+        const {data, error} = await supabase.auth.signInWithPassword({
+            email, password
+        })
 
-    if (error) {
-        return res.status(401).json({message: "Email ou senha inválidos"})
-    }
+        if (error) {
+            return res.status(401).json({message: "Email ou senha inválidos"})
+        }
 
-    const userId = data.user.id
+        const userId = data.user.id
+        let profileUser: any = null
 
-    const {data: employee, error: employeeError} = await supabase
-    .from ('users')
-    .select('id_users, name, role, active')
-    .eq('id_users', userId)
-    .maybeSingle()
+        const {data: employee, error: employeeError} = await supabaseAdmin
+        .from ('users')
+        .select('id_users, name, role, active')
+        .eq('id_users', userId)
+        .maybeSingle()
 
-    if (employeeError) {
-        return res.status(500).json({message: 'Erro ao procurar usuário', error: employeeError.message})
-    }
+        if (employeeError) {
+            return res.status(500).json({message: 'Erro ao procurar usuário', error: employeeError.message})
+        }
 
-    console.log("=== TESTE DE LOGIN ===") // Só um teste se realmente tá na tabela ;)
-    console.log("Dados retornados:", employee)
+        console.log("=== TESTE DE LOGIN ===") // Só um teste se realmente tá na tabela ;)
+        console.log("Dados retornados:", employee)
 
-    if (employee) {
-        return res.status(200).json({ // Se for muito conteúdo dentro de {} é bom quebrar :)
-            message: 'Login realizado com sucesso',
-            user: { // Destruturação :)
+        if (employee) {
+            profileUser = {
                 id: employee.id_users,
                 name: employee.name,
-                role: employee.role,
+                role: employee.role, 
                 active: employee.active
-            },
+            }
+        }else{
+            const {data: customer, error: customerError} = await supabaseAdmin
+            .from('customer')
+            .select('id_customer, name, role, zip_code')
+            .eq('id_customer', userId)
+            .maybeSingle()
+            if (customerError) {
+                return res.status(500).json({message: 'Erro ao procurar cliente', error: customerError.message})
+            }
+
+            if(customer) {
+                    profileUser = {
+                    id: customer.id_customer,
+                    name: customer.name,
+                    role: 'customer', // Forçamos a role como 'customer' para o switch do front-end funcionar
+                    zip_code: customer.zip_code     
+                    
+                }
+            }
+        } 
+        
+        console.log("=== TESTE DE LOGIN ===")
+        console.log("Perfil identificado:", profileUser)
+
+        if (profileUser) {
+        return res.status(200).json({
+            message: 'Login realizado com sucesso',
+            user: profileUser,
             session: data.session
+            })
+        }
+
+        return res.status(404).json({
+        message: "Usuário autenticado, DEBUG"
         })
     }
-
-    return res.status(404).json({
-    message: "Usuário autenticado, mas perfil não encontrado"
-    })
-}

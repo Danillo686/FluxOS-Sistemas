@@ -1,4 +1,5 @@
 import express from "express"
+import cors from 'cors'
 import testRoute from "./routes/testRoute.js"
 import loginRoute from "./routes/loginRoute.js"
 import userRoute from "./routes/userRoute.js"
@@ -8,7 +9,9 @@ import vehicleRoute from "./routes/vehicleRoute.js"
 // import {getCustomer}from "./controllers/getCustomer.js"
 import router from "./routes/getSystem.js"
 
+
 const app = express()
+app.use(cors())
 
 app.use(express.json())
 
