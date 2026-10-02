@@ -54,6 +54,17 @@ Pelo telefone (post vehicles):
   "brand": "Toyota"
 }
 
+Criar a ordem de serviço(precisa logar com uma conta de ATENDENTE, pegar seu token
+colocar no header e colocar também o key: content-type value: application/json ):
+{
+    "vehicle_id": 1,
+    "technician_id": "c11aefd3-e3a8-46c7-b6bc-db489fbbc509",
+    "customer_report": "Disco está arranhando",
+    "notes": "Arrumar ai",
+    "estimated_completion_date": "2026-10-05",
+    "total_value": 350
+}
+
 
 CREATE POLICY "Permitir leitura para usuários autenticado" 
 ON users FOR SELECT 

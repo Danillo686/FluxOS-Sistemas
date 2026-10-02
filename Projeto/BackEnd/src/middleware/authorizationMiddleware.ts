@@ -16,10 +16,12 @@ export function CanCreateRole (
     return permissions[creatorRole]?.includes(roleToCreate) ?? false
 }
 
+// Permissões de criações (Fluxo do sistema :)
 export type Permissions = 
     | 'create_employee'
     | 'create_customer'
     | 'create_vehicle'
+    | 'create_service_order'
 
 const actionPermissions: Record<EmployeeRole, Permissions[]> = {
         admin: [
@@ -36,7 +38,8 @@ const actionPermissions: Record<EmployeeRole, Permissions[]> = {
 
     attendant: [
         "create_customer",
-        "create_vehicle"
+        "create_vehicle",
+        "create_service_order"
     ],
 
     employee: [
