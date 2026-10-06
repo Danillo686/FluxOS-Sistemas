@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { supabase } from "../supabase.js"
+import { supabaseAdmin } from "../supabase.js"
 
 export const createVehicle = async (
     req: Request,
@@ -22,8 +22,9 @@ export const createVehicle = async (
         })
     }
 
+    // Consulta feita no servidor após a autorização da rota, sem depender do RLS anônimo.
     // 1. MONTA A BUSCA DINÂMICA DO CLIENTE
-    let query = supabase.from('customer').select('id_customer')
+    let query = supabaseAdmin.from('customer').select('id_customer')
 
     if (customer_id) {
         // Se mandou o ID, busca direto de forma precisa
@@ -58,8 +59,9 @@ export const createVehicle = async (
     // Acessa a posição 0 do array de resultados para pegar o ID único do cliente
     const finalCustomerId = customers[0].id_customer
 
+    // Gravação feita no servidor depois de confirmar o cliente.
     // 3. CADASTRA O VEÍCULO COM O ID CORRETO VINCULADO
-    const { data: vehicle, error: vehicleError } = await supabase
+    const { data: vehicle, error: vehicleError } = await supabaseAdmin
     .from('vehicles')
     .insert({
         customer_id: finalCustomerId, 

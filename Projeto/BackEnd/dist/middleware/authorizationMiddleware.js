@@ -40,7 +40,8 @@ export const authorizationMiddleware = (req, res, next) => {
     }
     const allowed = CanCreateRole(creatorRole, roleToCreate);
     if (!allowed) {
-        res.status(401).json({ message: `${creatorRole} não pode criar ${roleToCreate}` });
+        // A conta está autenticada, mas não tem permissão para criar essa função.
+        res.status(403).json({ message: `${creatorRole} não pode criar ${roleToCreate}` });
         return;
     }
     next();

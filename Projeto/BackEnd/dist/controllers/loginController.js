@@ -8,6 +8,12 @@ export const login = async (req, res) => {
         email, password
     });
     if (error) {
+        // Diagnóstico do Auth sem registrar email, senha ou token.
+        console.error('Falha de autenticação Supabase:', {
+            message: error.message,
+            status: error.status,
+            code: error.code
+        });
         return res.status(401).json({ message: "Email ou senha inválidos" });
     }
     const userId = data.user.id;
@@ -57,7 +63,8 @@ export const login = async (req, res) => {
             session: data.session
         });
     }
+    // Login válido sem perfil correspondente ao UID do Auth.
     return res.status(404).json({
-        message: "Usuário autenticado, DEBUG"
+        message: "Conta autenticada, mas sem perfil vinculado. O ID do usuário no Supabase Auth deve corresponder a users.id_users ou customer.id_customer."
     });
 };

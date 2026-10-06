@@ -1,10 +1,9 @@
-import { NextFunction, Request, Response } from "express"
+import { Request, Response } from "express"
 import { supabaseAdmin } from "../supabase.js"
 
 export const createUser = async (
     req: Request,
     res: Response,
-    next: NextFunction
 ):Promise<any> => {
     const {name, email, password, role} = req.body
 
@@ -36,7 +35,15 @@ export const createUser = async (
     .single()
 
     if (employeeError) {
-        return res.status(500).json({message: 'Conta criada no Auth, mas erro ao criar perfil', error: employeeError.message})
+        // Remove a conta Auth se o perfil não for criado, evitando funcionários sem role vinculada.
+        const {error: cleanupError} = await supabaseAdmin.auth.admin.deleteUser(userId)
+        return res.status(500).json({
+            message: cleanupError
+                ? 'Falha ao criar o perfil e remover a conta incompleta'
+                : 'Cadastro cancelado porque não foi possível criar o perfil do funcionário',
+            error: employeeError.message,
+            cleanupError: cleanupError?.message
+        })
     }
 
     return res.status(201).json({message: 'Usuário criado com sucesso', user: employee})

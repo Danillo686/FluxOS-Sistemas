@@ -1,26 +1,31 @@
 // src/routes.ts
 import { Router } from "express";
+import { authMiddleware, tokenAuthMiddleware } from "../middleware/authMiddleware.js";
 import { 
     getCustomers, getCustomerById, getCustomerByName,
     getUsers, getUserById, getUserByName,
-    getVehicles, getVehicleById, getVehicleByPlate, getVehicleByModel
+    getVehicles, getMyVehicles, getVehicleById, getVehicleByPlate, getVehicleByModel
 } from "../controllers/getSystem.js";
 
 const router = Router();
 
 // Rotas de Customers
-router.get("/customers", getCustomers);
-router.get("/customers/:id", getCustomerById);
-router.get("/customer/:name", getCustomerByName)
+// Consultas internas de clientes exigem autenticação de funcionário.
+router.get("/customers", authMiddleware, getCustomers);
+router.get("/customers/:id", authMiddleware, getCustomerById);
+router.get("/customer/:name", authMiddleware, getCustomerByName)
 
 // Rotas de Users
-router.get("/users", getUsers);
-router.get("/users/:id", getUserById);
-router.get("/users/:name", getUserByName)
+// Consultas da equipe exigem autenticação de funcionário.
+router.get("/users", authMiddleware, getUsers);
+router.get("/users/:id", authMiddleware, getUserById);
+router.get("/users/:name", authMiddleware, getUserByName)
 
 // Rotas de Veículos
-router.get("/vehicles", getVehicles);
-router.get("/vehicles/:id", getVehicleById);
-router.get("/vehicles/plate/:plate", getVehicleByPlate);
-router.get("/vehicles/model/:model", getVehicleByModel)
+// Cliente consulta os próprios veículos; consultas gerais exigem autenticação de funcionário.
+router.get("/my/vehicles", tokenAuthMiddleware, getMyVehicles);
+router.get("/vehicles", authMiddleware, getVehicles);
+router.get("/vehicles/:id", authMiddleware, getVehicleById);
+router.get("/vehicles/plate/:plate", authMiddleware, getVehicleByPlate);
+router.get("/vehicles/model/:model", authMiddleware, getVehicleByModel)
 export default router;

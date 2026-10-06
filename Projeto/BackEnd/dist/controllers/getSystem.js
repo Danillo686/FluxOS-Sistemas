@@ -65,6 +65,18 @@ export const getVehicles = async (req, res) => {
         return res.status(500).json({ Error: error.message });
     return res.status(200).json({ message: 'GET veículos feito com sucesso!', data });
 };
+// Retorna apenas os veículos associados ao UID autenticado do cliente.
+export const getMyVehicles = async (req, res) => {
+    if (!req.user)
+        return res.status(401).json({ message: 'Usuário não autenticado' });
+    const { data, error } = await supabaseAdmin
+        .from('vehicles')
+        .select('*')
+        .eq('customer_id', req.user.id);
+    if (error)
+        return res.status(500).json({ Error: error.message });
+    return res.status(200).json({ message: 'Veículos do cliente encontrados', data });
+};
 // Buscar veículo por ID
 export const getVehicleById = async (req, res) => {
     const { id } = req.params;

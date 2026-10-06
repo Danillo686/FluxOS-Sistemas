@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiPost } from '../api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -8,58 +9,20 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-      
-      console.log('Tentando logar em:', `${apiUrl}/login`); // <-- TESTE 1: Ver URL
-      console.log('Dados enviados:', { email, password });
-
-      const response = await fetch(`${apiUrl}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      
-      console.log('RESPOSTA COMPLETA DO BACKEND:', data); // <-- TESTE 2: Ver o formato dos dados
-
-      if (response.ok) {
-        if (data.session?.access_token) {
-          localStorage.setItem('token', data.session.access_token);
-        }
-
-        if (data.user) {
-          localStorage.setItem('user', JSON.stringify(data.user));
-        }
-
-        switch (data.user?.role) {
-          case 'owner':
-            navigate('/owner');
-            break;
-          case 'attendant':
-            navigate('/attendant');
-            break;
-          case 'technician':
-            navigate('/technician');
-            break;
-          case 'customer':
-            navigate('/customer'); // Corrigido ponto e vírgula aqui
-            break;
-          default:
-            console.log('Caiu no default! Role atual:', data.user?.role);
-            alert('Tipo de usuário não reconhecido.');
-            break;
-        }
-      } else {
-        alert(data.message || data.error || 'Erro ao realizar o login.');
+      const data = await apiPost('/login', { email, password });
+      if (!data.session?.access_token || !data.user) {
+        throw new Error('A API não retornou uma sessão válida.');
       }
+
+      localStorage.setItem('token', data.session.access_token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      navigate('/dashboard');
     } catch (error) {
-      console.error('Erro na requisição (CORS ou Servidor desligado):', error);
-      alert('Não foi possível conectar ao servidor. Verifique se o backend está rodando.');
+      alert(error.message || 'Não foi possível conectar ao servidor. Verifique se o backend está rodando.');
     }
   };
 
