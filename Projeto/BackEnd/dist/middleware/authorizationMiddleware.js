@@ -10,22 +10,24 @@ export function CanCreateRole(creatorRole, roleToCreate) {
 }
 const actionPermissions = {
     admin: [
-        "create_employee"
+        "create_employee",
+        "create_service"
     ],
     owner: [
-        "create_employee"
+        "create_employee",
+        "create_service"
     ],
     manager: [
-        "create_employee"
+        "create_employee",
+        "create_service"
     ],
     attendant: [
         "create_customer",
         "create_vehicle",
-        "create_service_order"
+        "create_service_order",
+        "create_service" //--> NÂO È CONFIRMADO, TIRAR DPS
     ],
-    employee: [
-        "create_employee"
-    ]
+    employee: []
 };
 export function CanPerformAction(creatorRole, action) {
     return actionPermissions[creatorRole]?.includes(action) ?? false;

@@ -3,7 +3,8 @@ import { createServiceOrder, getServiceOrders } from "../controllers/serviceOrde
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { actionAuthorizationMiddleware } from "../middleware/authorizationMiddleware.js";
 const serviceOrderRoute = Router();
-// GET protegido para listar as ordens já cadastradas no painel.
+// Lista as ordens de serviço.
 serviceOrderRoute.get("/service-orders", authMiddleware, getServiceOrders);
+// Cria uma ordem de serviço.
 serviceOrderRoute.post("/service-orders", authMiddleware, actionAuthorizationMiddleware("create_service_order"), createServiceOrder);
 export default serviceOrderRoute;

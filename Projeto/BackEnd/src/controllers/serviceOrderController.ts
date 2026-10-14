@@ -24,17 +24,19 @@ export const createServiceOrder = async (
 ): Promise<any> => {
     const {
         vehicle_id,
-        // attendant_id,
         technician_id,
         customer_report,
         notes,
-        estimated_completion_date,
-        total_value
+        estimated_completion_date
     } = req.body
 
     // O relato é obrigatório no formulário de abertura da ordem.
-    if(!vehicle_id || !customer_report) {
-        return res.status(400).json({message: 'Veículo e descrição do problema são obrigatórios'})
+    if (vehicle_id === undefined || vehicle_id === null || vehicle_id === "" || !Number.isSafeInteger(Number(vehicle_id)) || Number(vehicle_id) <= 0) {
+        return res.status(400).json({message: 'Por favor, informe um ID válido!'})
+    }
+
+    if (typeof customer_report !== "string" || !customer_report.trim()) {
+        return res.status(400).json({message: 'A descrição do problema é obrigatória'})
     }
 
     if (!req.employee) {
@@ -45,7 +47,7 @@ export const createServiceOrder = async (
     const {data: vehicle, error: vehicleError} = await supabaseAdmin
     .from('vehicles')
     .select('id_vehicles')
-    .eq('id_vehicles', vehicle_id)
+    .eq('id_vehicles', Number(vehicle_id))
     .maybeSingle()
 
     if (vehicleError) {
@@ -56,28 +58,23 @@ export const createServiceOrder = async (
         return res.status(404).json({message: 'Veículo não encontrado'})
     }
 
-    //Pegando estritamente a string da data (índice 0 do split)
-     const entryDateString = new Date().toISOString().split("T")[0]; 
-
     const {data: serviceOrder, error: serviceOrderError} = await supabaseAdmin
     .from('service_orders')
-        .insert({
-        vehicle_id,
-        attendant_id: req.employee.id,
-        technician_id: technician_id || null,
-        status: "open",
-        customer_report,
-        notes: notes || null,
-        entry_date: entryDateString,
-        estimated_completion_date: estimated_completion_date || null,
-        total_value: total_value || null
+    .insert({
+            vehicle_id: Number(vehicle_id),
+            attendant_id: req.employee.id,
+            technician_id: technician_id || null,
+            status: "open",
+            customer_report: customer_report.trim(),
+            notes: notes || null,
+            estimated_completion_date:
+            estimated_completion_date || null
     })
     .select()
     .single()
 
     if (serviceOrderError) {
-        // Isso vai printar o erro completinho no terminal do seu VS Code / Servidor
-        console.error("ERRO COMPLETO DO SUPABASE:", serviceOrderError);
+        console.error("Errro ao cadastrar ordem de serviço", serviceOrderError);
 
         return res.status(500).json({
             message: 'Erro ao cadastrar ordem de serviço', 
