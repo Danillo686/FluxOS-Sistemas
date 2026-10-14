@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { supabaseAdmin } from "../supabase.js"
 
+
 export const addServiceToOrder = async (
     req: Request,
     res: Response
@@ -92,4 +93,58 @@ export const getOrderServices = async (
         message: "Serviços da ordem encontrados",
         data: orderServices
     })
+}
+
+export const assingServiceToEmployee = async (
+    req: Request,
+    res: Response
+): Promise<any> => {
+    const {orderServiceID, employeeID} = req.body
+
+    if (!Number.isSafeInteger(Number(orderServiceID)) || Number(orderServiceID) || typeof employeeID !== "string" || !employeeID.trim()) {
+        return res.status(400).json({message: 'Informe IDs válidos para o serviço e o funcionário'})
+    }
+
+    const {data: orderService, error: orderServiceError} = await supabaseAdmin
+    .from('service_order_services')
+    .select('id_order_service, status')
+    .eq('id_order_service', Number(orderServiceID))
+    .maybeSingle()
+
+    if (orderServiceError) {
+        return res.status(404).json({message: 'Serviço da ordem não encontrado'})
+    }
+
+    if (['completed', 'cancelled'].includes(orderServiceID.status)) {
+        return res.status(409).json({message: 'Não é possível atribuir um serviço finalizado ou cancelado'})
+    }
+
+    const {data: employee, error: employeeError} = await supabaseAdmin
+    .from('users')
+    .select('id_users, role, active')
+    .eq('id_users', employeeID)
+    .maybeSingle()
+
+    if (employeeError) {
+        return res.status(500).json({message: 'Erro ao consultar funcionário...', error: employeeError.message})
+    }
+
+    if (!employee || !employee.active || employee.role !== 'employee') {
+        return res.status(400).json({message: 'Funcionário não encontrado, inativo ou sem a função employee'})
+    }
+
+    const {data: updateService, error: updateServiceError} = await supabaseAdmin
+    .from('service_order_services')
+    .update({
+        technician_id: employee.id_users
+    })
+    .eq('id_order_service', Number(orderServiceID))
+    .select()
+    .single()
+
+    if (updateServiceError) {
+        return res.status(500).json({message: 'Erro ao atribuir serviço', error: updateServiceError.message})
+    }
+
+    return res.status(200).json({message: 'Serviço atribuído ao funcionário com sucesso!', data: updateService})
 }

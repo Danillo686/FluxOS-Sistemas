@@ -8,6 +8,7 @@ import vehicleRoute from "./routes/vehicleRoute.js";
 import router from "./routes/getSystem.js";
 import serviceOrderRoute from "./routes/serviceOrderRoute.js";
 import serviceRoute from "./routes/serviceRoute.js";
+import serviceOrderServiceRoute from "./routes/serviceOrderServiceRoute.js";
 const app = express();
 // CORS restrito às origens locais do frontend ou à origem definida em FRONTEND_URL.
 const frontendOrigins = new Set((process.env.FRONTEND_URL || "http://localhost:5173,http://localhost:5174")
@@ -32,6 +33,7 @@ app.use(customerRoute);
 app.use(vehicleRoute);
 app.use(serviceOrderRoute);
 app.use(serviceRoute);
+app.use(serviceOrderServiceRoute);
 app.listen(3001, () => {
     console.log("Servidor rodando em http://localhost:3001");
 });

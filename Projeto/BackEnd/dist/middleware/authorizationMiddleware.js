@@ -19,13 +19,16 @@ const actionPermissions = {
     ],
     manager: [
         "create_employee",
-        "create_service"
+        "create_service",
+        "assign_service"
     ],
     attendant: [
         "create_customer",
         "create_vehicle",
         "create_service_order",
-        "create_service" //--> NÂO È CONFIRMADO, TIRAR DPS
+        "create_service", //--> NÂO È CONFIRMADO, TIRAR DPS
+        "add_service_to_order",
+        "update_service_progress"
     ],
     employee: []
 };
