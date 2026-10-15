@@ -1,5 +1,5 @@
 import { Router } from "express"
-import {addServiceToOrder, getOrderServices, assingServiceToEmployee} from "../controllers/serviceOrderServiceController.js"
+import {addServiceToOrder, getOrderServices, assignServiceToEmployee, updateOrderServiceStatus} from "../controllers/serviceOrderServiceController.js"
 import { authMiddleware } from "../middleware/authMiddleware.js"
 import { actionAuthorizationMiddleware } from "../middleware/authorizationMiddleware.js"
 
@@ -24,7 +24,13 @@ serviceOrderServiceRoute.patch(
     "/service-orders/services/assign",
     authMiddleware,
     actionAuthorizationMiddleware("assign_service"),
-    assingServiceToEmployee
+    assignServiceToEmployee
+)
+
+serviceOrderServiceRoute.patch(
+    "/service-orders/services/:orderServiceId/status",
+    authMiddleware,
+    updateOrderServiceStatus
 )
 
 

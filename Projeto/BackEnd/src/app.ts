@@ -9,6 +9,7 @@ import router from "./routes/getSystem.js"
 import serviceOrderRoute from "./routes/serviceOrderRoute.js"
 import serviceRoute from "./routes/serviceRoute.js"
 import serviceOrderServiceRoute from "./routes/serviceOrderServiceRoute.js"
+import serviceStepRoute from "./routes/serviceStepRoute.js"
 
 
 const app = express()
@@ -42,6 +43,7 @@ app.use(vehicleRoute)
 app.use(serviceOrderRoute)
 app.use(serviceRoute)
 app.use(serviceOrderServiceRoute)
+app.use(serviceStepRoute)
 
 app.listen(3001, () => {
     console.log("Servidor rodando em http://localhost:3001")
